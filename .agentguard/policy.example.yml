@@ -1,0 +1,56 @@
+version: 1
+
+defaults:
+  mode: "SUGGEST"
+  full_temp_ttl_minutes: 15
+
+sensitive_paths:
+  block:
+    - ".github/workflows/**"
+    - "infra/**"
+    - "terraform/**"
+    - "k8s/**"
+    - "auth/**"
+  require_approval:
+    - "scripts/**"
+    - "Dockerfile"
+    - "docker/**"
+
+files:
+  max_files_changed_per_run: 10
+  require_plan_on_high_risk: true
+
+terminal:
+  allow:
+    - "^git status$"
+    - "^git diff"
+    - "^(npm|pnpm|yarn) (test|lint|build)"
+    - "^pytest"
+    - "^ls($| )"
+    - "^cat "
+  require_approval:
+    - "^git push"
+    - "^docker build"
+    - "^kubectl (apply|rollout|scale)"
+    - "^terraform (plan|apply)"
+  block:
+    - "rm -rf"
+    - "kubectl delete"
+    - "terraform destroy"
+    - "curl\\s+.*\\|\\s*(bash|sh)"
+
+git:
+  allow_open_pr: true
+  block_force_push: true
+  block_push_to_branches:
+    - "main"
+    - "master"
+
+supervisor:
+  no_progress:
+    max_repeated_failures: 3
+    max_similar_actions: 5
+  llm:
+    enabled: false
+    provider: "openai"
+    model: "gpt-4.1-mini"
